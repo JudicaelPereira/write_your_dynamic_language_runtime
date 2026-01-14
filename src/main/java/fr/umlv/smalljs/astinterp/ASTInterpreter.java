@@ -136,19 +136,53 @@ public final class ASTInterpreter {
                 throw new ReturnError(value);
             }
             case If(Expr condition, Block trueBlock, Block falseBlock, int lineNumber) -> {
-                throw new UnsupportedOperationException("TODO If");
+                var conditionValue = visit(condition, env);
+                if (!(conditionValue instanceof Integer i)) {
+                    throw new Failure("non boolean expression at line " + lineNumber);
+                }
+                if (i != 0) {
+                    yield visit(trueBlock, env);
+                }
+                yield visit(falseBlock, env);
             }
             case ObjectLiteral(Map<String, Expr> initMap, int lineNumber) -> {
-                throw new UnsupportedOperationException("TODO ObjectLiteral");
+                var object = JSObject.newObject(null);
+                for (var entry : initMap.entrySet()) {
+                    var value = visit(entry.getValue(), env);
+                    object.register(entry.getKey(), value);
+                }
+                yield object;
             }
             case FieldAccess(Expr receiver, String name, int lineNumber) -> {
-                throw new UnsupportedOperationException("TODO FieldAccess");
+                var maybeObject = visit(receiver, env);
+                if (!(maybeObject instanceof JSObject object)) {
+                    throw new Failure("can not access non object at line " + lineNumber);
+                }
+                yield object.lookupOrDefault(name, UNDEFINED);
             }
             case FieldAssignment(Expr receiver, String name, Expr expr, int lineNumber) -> {
-                throw new UnsupportedOperationException("TODO FieldAssignment");
+                var maybeObject = visit(receiver, env);
+                if (!(maybeObject instanceof JSObject object)) {
+                    throw new Failure("can not access non object at line " + lineNumber);
+                }
+                var value = visit(expr, env);
+//                if (object.lookupOrDefault(name, null) == null) {
+//                    throw new Failure("can not access non existing field at line " + lineNumber);
+//                }
+                object.register(name, value);
+                yield UNDEFINED;
             }
-            case MethodCall(Expr receiver, String name, List<Expr> args, int lineNumber) -> {
-                throw new UnsupportedOperationException("TODO MethodCall");
+            case MethodCall(Expr receiver, String name, List<Expr> exprArgs, int lineNumber) -> {
+                var maybeObject = visit(receiver, env);
+                if (!(maybeObject instanceof JSObject object)) {
+                    throw new Failure("can not access non object at line " + lineNumber);
+                }
+                var maybeFunction = object.lookupOrDefault(name, UNDEFINED);
+                if (!(maybeFunction instanceof JSObject function)) {
+                    throw new Failure("can not call methode on non function field at line " + lineNumber);
+                }
+                var args = exprArgs.stream().map(ea -> visit(ea, env)).toArray();
+                yield function.invoke(maybeFunction, args);
             }
         };
     }

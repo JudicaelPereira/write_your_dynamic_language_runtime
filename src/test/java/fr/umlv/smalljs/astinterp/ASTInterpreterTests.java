@@ -219,7 +219,7 @@ public class ASTInterpreterTests {
         }
     }
 
-    /*@Nested
+    @Nested
     public class Q11 {
         @Test
         public void printWithAnIf() {
@@ -544,5 +544,4 @@ public class ASTInterpreterTests {
                   """));
         }
     }
-    */
 }
