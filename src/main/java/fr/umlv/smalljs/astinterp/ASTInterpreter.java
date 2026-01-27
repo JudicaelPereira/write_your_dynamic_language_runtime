@@ -166,11 +166,8 @@ public final class ASTInterpreter {
                     throw new Failure("can not access non object at line " + lineNumber);
                 }
                 var value = visit(expr, env);
-//                if (object.lookupOrDefault(name, null) == null) {
-//                    throw new Failure("can not access non existing field at line " + lineNumber);
-//                }
                 object.register(name, value);
-                yield UNDEFINED;
+                yield value;
             }
             case MethodCall(Expr receiver, String name, List<Expr> exprArgs, int lineNumber) -> {
                 var maybeObject = visit(receiver, env);
@@ -182,7 +179,7 @@ public final class ASTInterpreter {
                     throw new Failure("can not call methode on non function field at line " + lineNumber);
                 }
                 var args = exprArgs.stream().map(ea -> visit(ea, env)).toArray();
-                yield function.invoke(maybeFunction, args);
+                yield function.invoke(visit(receiver, env), args);
             }
         };
     }
