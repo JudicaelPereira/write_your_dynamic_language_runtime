@@ -20,7 +20,6 @@ public class StackInterpreterTests {
     return outStream.toString(StandardCharsets.UTF_8).replace("\r\n", "\n");
   }
 
-  /*
   @Nested
   public class Q2 {
     @Test
@@ -38,7 +37,7 @@ public class StackInterpreterTests {
     }
   }
 
-  @Nested
+  /*@Nested
   public class Q3 {
     @Test
     public void integer3() {

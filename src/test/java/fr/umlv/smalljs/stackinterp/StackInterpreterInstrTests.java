@@ -32,34 +32,34 @@ import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("static-method")
 public class StackInterpreterInstrTests {
-	private static JSObject newFunction(String name, Code code) {
-		var fun = JSObject.newFunction(name, JSObject.NO_INVOKER_MH);
-		fun.register("__code__", code);
-		return fun;
-	}
-	private static String execute(Code mainCode, Dictionary dict) {
-		var outStream = new ByteArrayOutputStream(8192);
-		var globalEnv = StackInterpreter.createGlobalEnv(new PrintStream(outStream, false, UTF_8));
-		var mainFun = newFunction("main", mainCode);
-		globalEnv.register("main", mainFun);
-		StackInterpreter.execute(mainFun, dict, globalEnv);
-		return outStream.toString(UTF_8).replace("\r\n", "\n");
-	}
+    private static JSObject newFunction(String name, Code code) {
+        var fun = JSObject.newFunction(name, JSObject.NO_INVOKER_MH);
+        fun.register("__code__", code);
+        return fun;
+    }
+    private static String execute(Code mainCode, Dictionary dict) {
+        var outStream = new ByteArrayOutputStream(8192);
+        var globalEnv = StackInterpreter.createGlobalEnv(new PrintStream(outStream, false, UTF_8));
+        var mainFun = newFunction("main", mainCode);
+        globalEnv.register("main", mainFun);
+        StackInterpreter.execute(mainFun, dict, globalEnv);
+        return outStream.toString(UTF_8).replace("\r\n", "\n");
+    }
 
-	/*
-	@Nested
-  public class Q2 {
-		@Test
-		public void helloString() {
-			// "hello"
-			var dict = new Dictionary();
-			int[] instrs = {
-					CONST, encodeDictObject("hello", dict),
-					RET
-			};
-			assertEquals("", execute(new Code(instrs, 1, 1), dict));
-		}
-	}
+
+    @Nested
+    public class Q2 {
+        @Test
+        public void helloString() {
+            // "hello"
+            var dict = new Dictionary();
+            int[] instrs = {
+                    CONST, encodeDictObject("hello", dict),
+                    RET
+            };
+            assertEquals("", execute(new Code(instrs, 1, 1), dict));
+        }
+    }
 
 	@Nested
 	public class Q3 {
@@ -335,7 +335,7 @@ public class StackInterpreterInstrTests {
 		}
 	}
 
-	@Nested
+	/*@Nested
 	public class Q9 {
 		@Test
 		public void printAnUndefindeVariable() {
