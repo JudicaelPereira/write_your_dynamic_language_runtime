@@ -167,7 +167,7 @@ public final class ASTInterpreter {
                 }
                 var value = visit(expr, env);
                 object.register(name, value);
-                yield value;
+                yield UNDEFINED;
             }
             case MethodCall(Expr receiver, String name, List<Expr> exprArgs, int lineNumber) -> {
                 var maybeObject = visit(receiver, env);
