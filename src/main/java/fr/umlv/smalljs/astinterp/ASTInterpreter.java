@@ -179,7 +179,7 @@ public final class ASTInterpreter {
                     throw new Failure("can not call methode on non function field at line " + lineNumber);
                 }
                 var args = exprArgs.stream().map(ea -> visit(ea, env)).toArray();
-                yield function.invoke(visit(receiver, env), args);
+                yield function.invoke(object, args);
             }
         };
     }
