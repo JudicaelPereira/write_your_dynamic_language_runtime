@@ -143,11 +143,10 @@ public final class StackInterpreter {
 					store(stack, bp, offset, value);
 				}
 				case Instructions.DUP -> {
-					throw new UnsupportedOperationException("TODO DUP");
 					// get value on top of the stack (without remove it)
-					//var value = ...
+					var value = stack[sp -1];
 					// push it on top of the stack
-					//push(...);
+					push(stack, sp++, value);
 				}
 				case Instructions.POP -> {
 					// adjust the stack pointer
@@ -224,15 +223,15 @@ public final class StackInterpreter {
 
 					// save bp/pc/code in activation zone
 					// stack[activation + offset] = ??
-					var activation = bp + code.slotCount();
+					var activation = baseArg -1 + code.slotCount();
 					stack[activation + BP_OFFSET] = bp;
 					stack[activation + PC_OFFSET] = pc;
 					stack[activation + FUN_OFFSET] = encodeDictObject(function, dict);
 
 					// initialize pc, bp and sp
 					pc = 0;
-					bp = activation + ACTIVATION_SIZE;
-					sp = bp + code.slotCount();
+					bp = baseArg - 1 /* this */;
+					sp = activation + ACTIVATION_SIZE;
 
 					// initialize all locals that are not parameters
 					for (var i = bp + code.parameterCount(); i < bp + code.slotCount(); i++) {
@@ -264,7 +263,7 @@ public final class StackInterpreter {
 					}
 
 					// restore sp, function and bp
-					sp = bp;
+					sp = bp -1 /* jsObject */;
 					function = (JSObject) decodeDictObject(stack[activation + FUN_OFFSET], dict);
 					bp = stack[activation + BP_OFFSET];
 
@@ -279,22 +278,20 @@ public final class StackInterpreter {
 					// dumpStack("> end ret dump", stack, sp, bp, dict, heap);
 				}
 				case Instructions.GOTO -> {
-					throw new UnsupportedOperationException("TODO GOTO");
 					// get the label
-					//int label = ...
+					int label = instrs[pc++];
 					// change the program counter to the label
-					//pc = ...
+					pc = label;
 				}
 				case Instructions.JUMP_IF_FALSE -> {
-					throw new UnsupportedOperationException("TODO JUMP_IF_FALSE");
 					// get the label
-					//var label = ...
+					var label = instrs[pc++];
 					// get the value on top of the stack
-					//var condition = ...
+					var condition = pop(stack, --sp);
 					// if condition is false change the program counter to the label
-					//if (condition == TagValues.FALSE) {
-					  //pc = label;
-					//}
+					if (condition == TagValues.FALSE) {
+                        pc = label;
+					}
 				}
 				case Instructions.NEW -> {
 					throw new UnsupportedOperationException("TODO NEW");

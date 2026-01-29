@@ -13,39 +13,39 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class StackInterpreterTests {
-  private static String execute(String code) {
-    var script = createScript(code);
-    var outStream = new ByteArrayOutputStream(8192);
-    StackInterpreter.interpret(script, new PrintStream(outStream, false, StandardCharsets.UTF_8));
-    return outStream.toString(StandardCharsets.UTF_8).replace("\r\n", "\n");
-  }
+    private static String execute(String code) {
+        var script = createScript(code);
+        var outStream = new ByteArrayOutputStream(8192);
+        StackInterpreter.interpret(script, new PrintStream(outStream, false, StandardCharsets.UTF_8));
+        return outStream.toString(StandardCharsets.UTF_8).replace("\r\n", "\n");
+    }
 
-  @Nested
-  public class Q2 {
-    @Test
-    public void helloDoubleQuotedString() {
-      assertEquals("", execute("""
+    @Nested
+    public class Q2 {
+        @Test
+        public void helloDoubleQuotedString() {
+            assertEquals("", execute("""
               "hello"
               """));
-    }
+        }
 
-    @Test
-    public void helloSingleQuotedString() {
-      assertEquals("", execute("""
+        @Test
+        public void helloSingleQuotedString() {
+            assertEquals("", execute("""
               'hello'
               """));
+        }
     }
-  }
 
-  /*@Nested
-  public class Q3 {
-    @Test
-    public void integer3() {
-      assertEquals("", execute("""
+    @Nested
+    public class Q3 {
+        @Test
+        public void integer3() {
+            assertEquals("", execute("""
               3
               """));
+        }
     }
-  }
 
   @Nested
   public class Q4 {
@@ -217,7 +217,7 @@ public class StackInterpreterTests {
     }
   }
 
-  @Nested
+  /*@Nested
   public class Q11 {
     @Test
     public void printWithAnIf() {
@@ -353,7 +353,7 @@ public class StackInterpreterTests {
               function sub(a, b) { return a - b; }
               function mul(a, b) { return a * b; }
               function div(a, b) { return a / b; }
-              
+
               function calc(f, a, b) {
                 return f(a, b);
               }

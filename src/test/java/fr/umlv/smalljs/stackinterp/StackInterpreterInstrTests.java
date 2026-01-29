@@ -559,7 +559,7 @@ public class StackInterpreterInstrTests {
 		}
 	}
 
-	/*@Nested
+	@Nested
 	public class Q11 {
 		@Test
 		public void printWithAnIf() {
@@ -798,7 +798,7 @@ public class StackInterpreterInstrTests {
 		}
 	}
 
-	@Nested
+	/*@Nested
 	public class Q12 {
 		@Test
 		public void callFibo() {
