@@ -117,15 +117,14 @@ public final class StackInterpreter {
 					//dumpStack("in lookup", stack, sp, bp, dict, heap);
 				}
 				case Instructions.REGISTER -> {
-					throw new UnsupportedOperationException("TODO REGISTER");
 					// find the current instruction
-					//int indexTagValue = ...
+					int indexTagValue = instrs[pc++];
 					// decode the name from the instructions
-					//String name = ...
+					String name = (String) decodeDictObject(indexTagValue, dict);
 					// pop the value from the stack and decode it
-					//Object value = ...
+					Object value = decodeAnyValue(pop(stack, --sp), dict, heap);
 					// register it in the global environment
-					// globalEnv.register(...);
+					globalEnv.register(name, value);
 				}
 				case Instructions.LOAD -> {
 					// get local offset
@@ -189,8 +188,8 @@ public final class StackInterpreter {
 //					}
 
 					// check if the function contains a code attribute
-					var maybeCode = newFunction.lookupOrDefault("__code__", null);
-					if (maybeCode == null) { // native call !
+                    var maybeCode = newFunction.lookupOrDefault("__code__", null);
+                    if (maybeCode == null) { // native call !
                         // decode receiver
                         var receiver = decodeAnyValue(stack[baseArg + RECEIVER_BASE_ARG_OFFSET], dict, heap);
 
@@ -200,50 +199,49 @@ public final class StackInterpreter {
                             args[i] = decodeAnyValue(stack[baseArg + i], dict, heap);
                         }
 
-					  System.err.println("call native " + newFunction.name() + " with " +
-					     receiver + " " + java.util.Arrays.toString(args));
+                        System.err.println("call native " + newFunction.name() + " with " +
+                                receiver + " " + java.util.Arrays.toString(args));
 
-					  // call native function
-					  var result = encodeAnyValue(newFunction.invoke(receiver, args), dict);
+                        // call native function
+                        var result = encodeAnyValue(newFunction.invoke(receiver, args), dict);
 
-					  // fixup sp (receiver and function must be dropped)
-					  sp = baseArg - FUNCALL_PREFIX;
+                        // fixup sp (receiver and function must be dropped)
+                        sp = baseArg - FUNCALL_PREFIX;
 
-					  // push return value
-					  push(stack, sp++, result);
-					  continue;
-					}
-					throw new UnsupportedOperationException("TODO FUNCALL");
+                        // push return value
+                        push(stack, sp++, result);
+                        continue;
+                    }
 
 					// initialize new code
-					//code = (Code) maybeCode;
+					code = (Code) maybeCode;
 
 					// check the number of arguments
-					//if (code.parameterCount() != argumentCount + 1/* this */) {
-					//	throw new Failure("wrong number of arguments for " + newFunction.name() + " expected "
-					//			+ (code.parameterCount() - 1) + " but was " + argumentCount);
-					//}
+					if (code.parameterCount() != argumentCount + 1/* this */) {
+						throw new Failure("wrong number of arguments for " + newFunction.name() + " expected "
+								+ (code.parameterCount() - 1) + " but was " + argumentCount);
+					}
 
 					// save bp/pc/code in activation zone
 					// stack[activation + offset] = ??
-					//var activation = ...;
-					//stack[activation + BP_OFFSET] = ...;
-					//stack[activation + PC_OFFSET] = ...;
-					//stack[activation + FUN_OFFSET] = ...;
+					var activation = bp + code.slotCount();
+					stack[activation + BP_OFFSET] = bp;
+					stack[activation + PC_OFFSET] = pc;
+					stack[activation + FUN_OFFSET] = encodeDictObject(function, dict);
 
 					// initialize pc, bp and sp
-					//pc = ...
-					//bp = ...
-					//sp = ...
+					pc = 0;
+					bp = activation + ACTIVATION_SIZE;
+					sp = bp + code.slotCount();
 
 					// initialize all locals that are not parameters
-					//for (var i = bp + code.parameterCount(); i < bp + code.slotCount(); i++) {
-					//	stack[i] = undefined;
-					//}
+					for (var i = bp + code.parameterCount(); i < bp + code.slotCount(); i++) {
+						stack[i] = undefined;
+					}
 
 					// initialize function and instrs of the new function
-					//function = newFunction;
-					//instrs = code.instrs();
+					function = newFunction;
+					instrs = code.instrs();
 
 					// DEBUG
 					// dumpStack(">end funcall dump", stack, sp, bp, dict, heap);
@@ -266,16 +264,16 @@ public final class StackInterpreter {
 					}
 
 					// restore sp, function and bp
-					//sp = ...;
-					//function = (JSObject) ...;
-					//bp = ...;
+					sp = bp;
+					function = (JSObject) decodeDictObject(stack[activation + FUN_OFFSET], dict);
+					bp = stack[activation + BP_OFFSET];
 
 					// restore code and instrs
-					//code = (Code) ...;
-					//instrs = code.instrs();
+					code = (Code) function.lookupOrDefault("__code__", null);
+					instrs = code.instrs();
 
 					// push return value
-					//push(...);
+					push(stack, sp++, result);
 
 					// DEBUG
 					// dumpStack("> end ret dump", stack, sp, bp, dict, heap);

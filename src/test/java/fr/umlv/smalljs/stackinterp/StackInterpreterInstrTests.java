@@ -335,7 +335,7 @@ public class StackInterpreterInstrTests {
 		}
 	}
 
-	/*@Nested
+	@Nested
 	public class Q9 {
 		@Test
 		public void printAnUndefindeVariable() {
@@ -559,7 +559,7 @@ public class StackInterpreterInstrTests {
 		}
 	}
 
-	@Nested
+	/*@Nested
 	public class Q11 {
 		@Test
 		public void printWithAnIf() {
